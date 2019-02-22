@@ -58,26 +58,43 @@ struct Coordinator{
 var coordinators = [Coordinator]()
 for _ in 1...100{
     coordinators.append(Coordinator(x: Int.random(in: 100...999), y: Int.random(in: 100...999)))
-//    coordinators[i] =
 }
 
-var completion: (([Coordinator])->Void)?
-
-func immediateSort(completionHandler: ([Coordinator])-> Void, entry: [Coordinator]){
-    var mutableEntry = entry
-    mutableEntry.sort(by: { $0.x > $1.x })
-    completionHandler(mutableEntry)
-}
-
-immediateSort(completionHandler: { sorted in
-    sorted.forEach {
-        $0.x
-        $0.y
+// MARK: - no @escaping
+extension Sequence where Iterator.Element == Coordinator {
+    func immediateSort(completion: ([Coordinator])-> Void){
+        completion(self.sorted(by: { $0.x > $1.x }))
     }
-}, entry: coordinators)
+}
 
+coordinators.immediateSort { sorted in
+    sorted.forEach({ print($0.x) })
+}
 
-completion = nil
+// MARK: - with @escaping
+extension Sequence where Iterator.Element == Coordinator{
+    func threadSort(completion: @escaping ([Coordinator])-> Void){
+        DispatchQueue.global().async {
+            let mutableEntry = self.sorted(by: { $0.x > $1.x })
+            
+            DispatchQueue.main.async {
+                completion(mutableEntry)
+            }
+        }
+    }
+}
+
+coordinators.removeAll()
+for _ in 1...1000{
+    coordinators.append(Coordinator(x: Int.random(in: 100...999), y: Int.random(in: 100...999)))
+}
+
+coordinators.threadSort { sorted in
+    sorted.forEach({ print($0.x) })
+}
+
+// MARK: - Using @escaping when the closure is stored on a stored property.
+var completion: (([Coordinator])->Void)?
 
 func sort(_ completionHandler: @escaping ([Coordinator])-> Void, entry: [Coordinator]){
     completion = completionHandler
