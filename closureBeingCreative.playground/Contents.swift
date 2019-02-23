@@ -116,4 +116,34 @@ sort({ sorted in
     }
 }, entry: coordinators)
 
+/*:
+ autoclosure
+ */
 
+let success = {"Success"}
+let fail = {"Error occurred"}
+
+func evaluate(_ status: Bool){
+    status ? success() : fail()
+}
+
+evaluate(true)
+evaluate(false)
+
+// MARK: - Function without @autoclosure
+let status = true
+
+func print(_ result: ()-> String){
+    "Summary: \(result())"
+}
+
+print { () -> String in
+    "Based on our status, having a \(status) value, our final result is \(status ? success() : fail())"
+}
+
+// MARK: - Funcion with @autoclosure
+func prettyPrint(_ result: @autoclosure ()->String){
+    "Summary: \(result())"
+}
+
+prettyPrint("Based on our status, having a \(status) value, our final result is \(status ? success() : fail())")
