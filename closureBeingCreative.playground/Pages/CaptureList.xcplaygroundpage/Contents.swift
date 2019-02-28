@@ -46,8 +46,15 @@ yoda = Jedi(name: "Yoda")
 yoda?.weapon = lightsaber
 lightsaber?.owner = yoda
 
-yoda?.weapon = nil
-//lightsaber?.owner = nil
+yoda = nil
+lightsaber = nil
+
+// MARK: - Breaking strong Reference cycle through setting nil to property
+lightsaber = Lightsaber(type: "single blade", model: "Shoto")
+yoda = Jedi(name: "Yoda")
+
+//yoda?.weapon = nil
+lightsaber?.owner = nil
 
 yoda = nil
 lightsaber = nil
