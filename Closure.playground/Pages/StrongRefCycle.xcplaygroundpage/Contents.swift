@@ -64,7 +64,7 @@ lightsaber = nil
  Dissection of unowned and weak﻿
  */
 
-// MARK: - Breaking Strong Reference cycle
+// MARK: - Breaking Strong Reference cycle through weak
 class JediMaster{
     let name: String
     weak var weapon: PlasmaLightsaber?
@@ -102,5 +102,41 @@ obwanLightsaber?.owner = obwan
 obwan = nil
 obwanLightsaber = nil
 
+// MARK: - Breaking Strong Reference cycle through unowned
+class JediKnights{
+    let name: String
+    var apprenticed: JediYoungling?
+    
+    init(name: String) {
+        self.name = name
+        "\(name) is a JediKnights now"
+    }
+    
+    deinit {
+        "\(name) became one with the Force"
+    }
+}
 
+class JediYoungling{
+    let name: String
+    unowned let master: JediKnights
+    
+    init(name: String, master: JediKnights) {
+        self.name = name
+        self.master = master
+        "JediKinghts, \(master.name), took \(name) as a apprentice"
+    }
+    
+    deinit {
+        "\(name) is no more a JediYoungling"
+    }
+}
+
+var master: JediKnights? = JediKnights(name: "Obi-Wan Kenobi")
+var youngling: JediYoungling? = JediYoungling(name: "Anakin Skywalker", master: master!)
+
+master?.apprenticed = youngling
+
+master = nil
+youngling = nil
 
